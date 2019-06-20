@@ -7,7 +7,7 @@
 <template>
     <div>
         <span class="text-green">message:</span> <input v-model="msg" type="text">
-        <HelloComponent ref="hello" :msg="msg" :initialEnthusiasm="5" />
+        <HelloComponent :msg="msg" :initialEnthusiasm="5" />
     </div>
 </template>
 
@@ -21,13 +21,17 @@ export default Vue.extend({
             msg: "Hello Word!" 
         }
     },
+    props: ['bus'],
     components: {
         HelloComponent
     },
     methods: {
-        say(){
-            console.log(this.msg)
+        say(times: string){
+            console.log(this.msg, times)
         }
-    }
+    },
+    mounted() {
+        this.bus.$on('say', this.say)
+    },
 });
 </script>
