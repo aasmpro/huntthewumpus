@@ -1,14 +1,17 @@
+<template>
+    <div>
+        <div class="greeting">{{msg}}{{exclamationMarks}}</div>
+        <button @click="decrement">-</button>
+        <span>{{enthusiasm}}</span>
+        <button @click="increment">+</button>
+    </div>
+</template>
+
+
+<script lang="ts">
 import Vue from "vue";
 
 export default Vue.extend({
-    template: `
-        <div>
-            <div>{{msg}}{{exclamationMarks}}</div>
-            <button @click="decrement">-</button>
-            <span>{{enthusiasm}}</span>
-            <button @click="increment">+</button>
-        </div>
-    `,
     props: ['msg', 'initialEnthusiasm'],
     data() {
         return {
@@ -29,3 +32,11 @@ export default Vue.extend({
         }
     }
 });
+</script>
+
+<style>
+.greeting {
+    font-size: 20px;
+    color: rgb(255, 0, 0);
+}
+</style>
