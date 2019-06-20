@@ -1,3 +1,10 @@
+<style>
+.greeting {
+    font-size: 20px;
+    color: rgb(255, 0, 0);
+}
+</style>
+
 <template>
     <div>
         <div class="greeting">{{msg}}{{exclamationMarks}}</div>
@@ -6,7 +13,6 @@
         <button @click="increment">+</button>
     </div>
 </template>
-
 
 <script lang="ts">
 import Vue from "vue";
@@ -33,10 +39,3 @@ export default Vue.extend({
     }
 });
 </script>
-
-<style>
-.greeting {
-    font-size: 20px;
-    color: rgb(255, 0, 0);
-}
-</style>
