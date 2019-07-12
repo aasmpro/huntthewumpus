@@ -60,6 +60,8 @@ body {
         <div v-if="!controls">
             <button v-on:click="reload()">Play Again</button>
         </div>
+        <textarea v-model="code"></textarea>
+        <button v-on:click="runCode()">Run</button>
     </div>
 </template>
 
@@ -70,6 +72,7 @@ import { GamePiece, GameBoard, Hero, Wumpus, Pit, Bats, Arrow } from "./game"
 export default Vue.extend({
     data(){
         return {
+            code: "" as string,
             controls: true as boolean,
             show: false as boolean,
             width: 5 as number,
@@ -92,14 +95,14 @@ export default Vue.extend({
     mounted() {
         this.bus.$on('move', this.move);
         this.bus.$on('shoot', this.shoot);
-        this.bus.$on('message', () => { return this.message});
-        this.bus.sensors = this.sensors;
-        this.bus.position = this.position;
-        this.bus.arrowsLeft = this.arrowsLeft;
     },
     props: ['bus'],
     methods: {
-        gameBoard: function () {
+        runCode: function(){
+            eval(this.code);
+        },
+
+        gameBoard: function() {
             var table: string="";
             for(var i=0; i<this.width; i++){
                 table += "<tr>";
@@ -122,6 +125,7 @@ export default Vue.extend({
         },
 
         init(){
+            this.code = "";
             this.width = 5;
             this.height = 5;
             this.arrowsLeft = 5;
