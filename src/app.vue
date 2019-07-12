@@ -4,7 +4,7 @@
 <template>
     <div>
         <span>{{arrowsLeft}}</span>
-        <table id="board">
+        <table id="board" :key="render">
             <tr v-for="i in width" :id="i-1">
                 <td v-for="j in height"></td>
             </tr>
@@ -47,11 +47,12 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { GamePiece, GameBoard, Hero, Wumpus, Pit, Bats, Arrow, Feedback } from "./game"
+import { GamePiece, GameBoard, Hero, Wumpus, Pit, Bats, Arrow } from "./game"
 
 export default Vue.extend({
     data(){
         return {
+            render: 0 as number,
             width: 5 as number,
             height: 5 as number,
             arrowsLeft: 5 as number,
@@ -74,6 +75,10 @@ export default Vue.extend({
     },
     props: ['bus'],
     methods: {
+        forceRender() {
+            this.render += 1;
+        },
+
         init(){
             this.width = 5;
             this.height = 5;
@@ -88,20 +93,18 @@ export default Vue.extend({
             this.board.space[this.hero.x][this.hero.y] = this.hero.name;
         },
 
-        updateArrows(amount: number) {
-            this.arrowsLeft += amount;
-        },
-
         end() {
-            var dom: any = document.getElementById("movementControls")
+            var dom: any = document.getElementById("movementControls");
             dom.style.display = "none";
-            dom = document.getElementById("arrowControls")
+            dom = document.getElementById("arrowControls");
             dom.style.display = "none";
         },
 
         win() {
             if (confirm("You WIN!!! New game?")) {
                 this.init();
+                this.forceRender();
+                this.move("standstill");
             } else {
                 this.end();	
             }
@@ -111,6 +114,8 @@ export default Vue.extend({
             this.feedback+="You are dead!";
             if (confirm("You lose! New game?")) {
                 this.init();
+                this.forceRender();
+                this.move("standstill");
             } else {
                 this.end();
             }
@@ -139,7 +144,7 @@ export default Vue.extend({
                 this.lose();
             }
             if ( this.hero.isTouching(this.extraArrow) ) {
-                this.updateArrows(1);
+                this.arrowsLeft += 1;
                 this.extraArrow.x = -1;
                 this.extraArrow.y = -1;
                 this.feedback+=this.extraArrow.touchingMessage;
@@ -161,14 +166,13 @@ export default Vue.extend({
 
         shoot(dir: string) {
             if ( this.arrowsLeft > 0 ) {
-                this.updateArrows(-1);
+                this.arrowsLeft -= 1;
                 var arrow = new Arrow({'x': this.hero.x, 'y': this.hero.y});
                 arrow.move(dir, this.board);
                 if ( arrow.isTouching(this.wumpus) ) {
                     this.feedback+="You WIN!!!";
                     this.win();
                 } else {
-                    this.wumpus.evade(this.randomDirection(), this);
                     this.move("standstill");
                     this.feedback+="Drats! Missed!";
                 }
@@ -180,35 +184,13 @@ export default Vue.extend({
         move(dir: string) {
             this.highlight(this.hero.x, this.hero.y);
             this.feedback = "";
-            this.hero.move(dir, this);
+            this.hero.move(dir, this.board);
             this.feedback+="You are at " + this.hero.x + "," + this.hero.y+"\n";
             this.highlight(this.hero.x, this.hero.y, "red");
             if (!this.checkTouch()) {
                 this.checkAdjacent();
             }
         },
-
-        randomDirection() {
-            var dir: string = "standstill";
-            var x = Math.ceil(Math.random()*5);
-            switch (x) {
-                case 1:
-                    dir = "up";
-                    break;
-                case 2:
-                    dir = "right";
-                    break;
-                case 3:
-                    dir = "down";
-                    break;
-                case 4:
-                    dir = "left";
-                    break;
-            }
-            return dir;
-        },
-
-
     },
 });
 </script>
