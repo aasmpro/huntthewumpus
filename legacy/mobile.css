@@ -1,0 +1,22 @@
+@charset "utf-8";
+/* Mobile CSS for Hunt the Wumpus */
+
+h2 {
+	clear:both;
+}
+#feedback {
+	height:100px;
+	width:60px;
+	padding:5px;
+	position:absolute;
+	top:20;
+	left:240;
+}
+
+#arrowControls, #movementControls {
+        float:left;
+	position:relative;
+	top:0;
+	left:0;
+        width:50%;
+}
