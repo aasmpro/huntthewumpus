@@ -21,8 +21,10 @@ body {
             <span v-if="!show">Show</span>
             <span v-if="show">Hide</span>
         </button>
-        <p>Arrows Left : {{arrowsLeft}}</p>
-        <span>{{feedback}}</span>
+        <p>Arrows: {{arrowsLeft}}</p>
+        <p>Position: {{position}}</p>
+        <p>Sensors: {{sensors}}</p>
+        <p>message: {{message}}</p>
         <div v-if="controls">
             <form onsubmit="return false;">
                 <table>
@@ -70,11 +72,12 @@ export default Vue.extend({
         return {
             controls: true as boolean,
             show: false as boolean,
-            render: 0 as number,
             width: 5 as number,
             height: 5 as number,
+            position: "" as string,
+            sensors: "" as string,
             arrowsLeft: 5 as number,
-            feedback: "" as string,
+            message: "" as string,
             board: null as any,
             hero: null as any,
             pit: null as any,
@@ -118,14 +121,16 @@ export default Vue.extend({
             this.width = 5;
             this.height = 5;
             this.arrowsLeft = 5;
-            this.feedback = "";
+            this.message = "";
+            this.position = "";
+            this.sensors = "";
             this.board = new GameBoard(this.width, this.height);
             this.hero = new Hero(this.board.getRandomEmptySpace("H"));
             this.pit = new Pit(this.board.getRandomEmptySpace("P"));
             this.bats = new Bats(this.board.getRandomEmptySpace("B"));
             this.wumpus = new Wumpus(this.board.getRandomEmptySpace("W"));
             this.extraArrow = new Arrow(this.board.getRandomEmptySpace("A"));
-            this.move("Stand")
+            this.move("Stand");
         },
 
         reload() {
@@ -134,7 +139,7 @@ export default Vue.extend({
         },
 
         win() {
-            this.feedback = "Win! You Hunted The Wumpus :)";
+            this.message = "Win! You Hunted The Wumpus :)";
             this.controls = false;
         },
 
@@ -151,52 +156,63 @@ export default Vue.extend({
                 this.hero.x = point.x;
                 this.hero.y = point.y;
                 this.move("standstill");
-                this.feedback += this.bats.touchingMessage;
+                this.message += this.bats.touchingMessage;
             }
             if (this.hero.isTouching(this.pit)) {
                 isTouchingAnythingDangerous = true;
-                this.feedback = this.pit.touchingMessage;
+                this.message = this.pit.touchingMessage;
                 this.lose();
             }
             if ( this.hero.isTouching(this.wumpus) ) {
                 isTouchingAnythingDangerous = true;
-                this.feedback+=this.wumpus.touchingMessage;
+                this.message = this.wumpus.touchingMessage;
                 this.lose();
             }
             if ( this.hero.isTouching(this.extraArrow) ) {
                 this.arrowsLeft += 1;
                 this.extraArrow.x = -1;
                 this.extraArrow.y = -1;
-                this.feedback+=this.extraArrow.touchingMessage;
+                this.message+=this.extraArrow.touchingMessage;
             }
             return isTouchingAnythingDangerous;
         },
 
         shoot(dir: string) {
-            if ( this.arrowsLeft > 0 ) {
+            if( this.arrowsLeft > 0 ) {
                 this.arrowsLeft -= 1;
                 var arrow = new Arrow({'x': this.hero.x, 'y': this.hero.y});
-                arrow.move(dir, this.board);
+                arrow.move(dir, this.width, this.height);
                 if ( arrow.isTouching(this.wumpus) ) {
                     this.win();
                 } else {
-                    this.feedback+="Arrow Missed!";
+                    if( this.extraArrow.x == -1 && this.arrowsLeft == 0) {
+                        this.message = "Lose! No more arrows for hunting Wumpus!";
+                        this.lose();
+                    } else {
+                        this.message = "Arrow missed!";
+                    }
                 }
             } else {
-                this.feedback+="Out of arrows!";	
+                if( this.extraArrow.x == -1 ) {
+                    this.message = "Lose! No more arrows for hunting Wumpus!";
+                    this.lose();
+                } else {
+                    this.message = "Out of arrows! But still there is one on board!";
+                }
             }
         },
 
         move(dir: string) {
             this.board.space[this.hero.x][this.hero.y] = "X";
-            this.feedback = "";
-            this.hero.move(dir, this.board);
-            this.feedback+="You are at " + this.hero.x + "," + this.hero.y;
+            this.message = "";
+            this.sensors = "";
+            this.hero.move(dir, this.width, this.height);
+            this.position = this.hero.x + "," + this.hero.y;
             this.board.space[this.hero.x][this.hero.y] = "H";
             if (!this.checkTouch()) {
-                if ( this.hero.isAdjacent(this.bats) ) this.feedback+=this.bats.adjacentMessage;
-                if ( this.hero.isAdjacent(this.pit) ) this.feedback+=this.pit.adjacentMessage;
-                if ( this.hero.isAdjacent(this.wumpus) ) this.feedback+=this.wumpus.adjacentMessage;
+                if ( this.hero.isAdjacent(this.bats) ) this.sensors+=this.bats.adjacentMessage;
+                if ( this.hero.isAdjacent(this.pit) ) this.sensors+=this.pit.adjacentMessage;
+                if ( this.hero.isAdjacent(this.wumpus) ) this.sensors+=this.wumpus.adjacentMessage;
             }
         },
     },

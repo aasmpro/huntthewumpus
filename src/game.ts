@@ -29,7 +29,7 @@ class GamePiece {
         }
     }
 
-    move(dir: string, board: GameBoard) {
+    move(dir: string, boardX: number, boardY:number) {
         switch(dir) {
             case "left":
                 if ( this.x > 0 ) this.x--;
@@ -38,10 +38,10 @@ class GamePiece {
                 if ( this.y > 0 ) this.y--;
                 break;
             case "right":
-                if ( this.x < board.space.length-1 ) this.x++;
+                if ( this.x < boardX ) this.x++;
                 break;
             case "down":
-                if ( this.y < board.space[0].length-1 ) this.y++;
+                if ( this.y < boardY ) this.y++;
                 break;
             default:
                 break;
@@ -51,19 +51,19 @@ class GamePiece {
 
 class Wumpus extends GamePiece {
     constructor(point: {x:number, y:number}){
-        super("Wumpus", point, "Wumpus", "Lose! The Wumpus hunted you")
+        super("Wumpus", point, "Wumpus, ", "Lose! The Wumpus hunted you! ")
     }
 }
 
 class Bats extends GamePiece {
     constructor(point: {x: number, y:number}){
-        super("Bats", point, "Bats", "Bats carried you away!")
+        super("Bats", point, "Bats, ", "Bats carried you away! ")
     }
 }
 
 class Pit extends GamePiece {
     constructor(point: {x:number, y:number}){
-        super("Pit", point, "Pit", "Lose! You fell down a pit! :(")
+        super("Pit", point, "Pit, ", "Lose! You fell down a pit! ")
     }
 }
 
@@ -75,7 +75,7 @@ class Hero extends GamePiece {
 
 class Arrow extends GamePiece {
     constructor(point: {x:number, y:number}){
-        super("Arrow",point,"","You found an arrow!")
+        super("Arrow",point,"","You found an arrow! ")
     }
 }
 
