@@ -51,7 +51,7 @@ class GamePiece {
 
 class Wumpus extends GamePiece {
     constructor(point: {x:number, y:number}){
-        super("Wumpus", point, "Wumpus", "You have been eaten by a wumpus!")
+        super("Wumpus", point, "Wumpus", "Lose! The Wumpus hunted you")
     }
 }
 
@@ -63,12 +63,11 @@ class Bats extends GamePiece {
 
 class Pit extends GamePiece {
     constructor(point: {x:number, y:number}){
-        super("Pit", point, "Pit", "You fell down a pit!")
+        super("Pit", point, "Pit", "Lose! You fell down a pit! :(")
     }
 }
 
 class Hero extends GamePiece {
-    arrows: number = 5;
     constructor(point: {x:number, y:number}){
         super("Hero",point,"","")
     }

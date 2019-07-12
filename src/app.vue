@@ -4,37 +4,23 @@ body {
 	font-size:small;
 }
 
-#board, #board1 {
-	background-color:#999;
-}
-
-#board td, #board1 td {
+#board td {
     text-align: center;
 	background-color:#ccc;
 	height:50px;
 	width:50px;
 }
-
-.red {
-    backgroundColor: red !import;
-}
-
-.pink {
-    backgroundColor: pink !import;
-}
 </style>
 
 <template>
     <div>
-        <table id="board1" v-html="gameBoard()">
+        <table id="board" v-html="gameBoard()">
             {{gameBoard()|html}}
         </table>
-        <table id="board" :key="render">
-            <tr v-for="i in width">
-                <td v-for="j in height"></td>
-            </tr>
-        </table>
-        <button v-on:click="help=!help">help</button>
+        <button v-on:click="show=!show">
+            <span v-if="!show">Show</span>
+            <span v-if="show">Hide</span>
+        </button>
         <p>Arrows Left : {{arrowsLeft}}</p>
         <span>{{feedback}}</span>
         <div v-if="controls">
@@ -83,7 +69,7 @@ export default Vue.extend({
     data(){
         return {
             controls: true as boolean,
-            help: true as boolean,
+            show: false as boolean,
             render: 0 as number,
             width: 5 as number,
             height: 5 as number,
@@ -103,7 +89,6 @@ export default Vue.extend({
     mounted() {
         // this.bus.$on('say', this.say),
         // this.bus.msg = this.msg
-        this.move("standstill");
     },
     props: ['bus'],
     methods: {
@@ -119,18 +104,14 @@ export default Vue.extend({
                         } else {
                             table += "<td>"
                         }
-                        if(this.help){
-                            table += this.board.space[j][i];
+                        if(this.show){
+                            table += this.board.space[j][i].replace("X", "");
                         }
                     table += "</td>"
                 }
                 table += "</tr>";
             }
             return table
-        },
-
-        forceRender() {
-            this.render += 1;
         },
 
         init(){
@@ -144,12 +125,11 @@ export default Vue.extend({
             this.bats = new Bats(this.board.getRandomEmptySpace("B"));
             this.wumpus = new Wumpus(this.board.getRandomEmptySpace("W"));
             this.extraArrow = new Arrow(this.board.getRandomEmptySpace("A"));
+            this.move("Stand")
         },
 
         reload() {
             this.init();
-            this.forceRender();
-            this.move("standstill");
             this.controls = true;
         },
 
@@ -159,7 +139,6 @@ export default Vue.extend({
         },
 
         lose() {
-            this.feedback = "Lose! The Wumpus Hunted You :(";
             this.controls = false;
         },
 
@@ -167,17 +146,16 @@ export default Vue.extend({
             var isTouchingAnythingDangerous = false;
             if ( this.hero.isTouching(this.bats) ) {
                 isTouchingAnythingDangerous = true;
-                this.highlight(this.hero.x, this.hero.y);
-                var point = this.board.getRandomEmptySpace();
+                this.board.space[this.hero.x][this.hero.y] = "BX";
+                var point = this.board.getRandomSpace();
                 this.hero.x = point.x;
                 this.hero.y = point.y;
-                
                 this.move("standstill");
-                this.feedback+=this.bats.touchingMessage;
+                this.feedback += this.bats.touchingMessage;
             }
             if (this.hero.isTouching(this.pit)) {
                 isTouchingAnythingDangerous = true;
-                this.feedback+=this.pit.touchingMessage;
+                this.feedback = this.pit.touchingMessage;
                 this.lose();
             }
             if ( this.hero.isTouching(this.wumpus) ) {
@@ -194,18 +172,6 @@ export default Vue.extend({
             return isTouchingAnythingDangerous;
         },
 
-        checkAdjacent() {
-            if ( this.hero.isAdjacent(this.bats) ) this.feedback+=this.bats.adjacentMessage;
-            if ( this.hero.isAdjacent(this.pit) ) this.feedback+=this.pit.adjacentMessage;
-            if ( this.hero.isAdjacent(this.wumpus) ) this.feedback+=this.wumpus.adjacentMessage;
-        },
-
-        highlight(x: number, y:number, color: string = "pink") {
-            var board: any = document.getElementById("board");
-            var cells: any = board.getElementsByTagName("td");
-            cells[x+y*board.getElementsByTagName("tr")[0].getElementsByTagName("td").length].style.backgroundColor=color;
-        },
-
         shoot(dir: string) {
             if ( this.arrowsLeft > 0 ) {
                 this.arrowsLeft -= 1;
@@ -214,7 +180,6 @@ export default Vue.extend({
                 if ( arrow.isTouching(this.wumpus) ) {
                     this.win();
                 } else {
-                    this.move("standstill");
                     this.feedback+="Arrow Missed!";
                 }
             } else {
@@ -223,14 +188,15 @@ export default Vue.extend({
         },
 
         move(dir: string) {
-            this.highlight(this.hero.x, this.hero.y);
+            this.board.space[this.hero.x][this.hero.y] = "X";
             this.feedback = "";
             this.hero.move(dir, this.board);
-            this.feedback+="You are at " + this.hero.x + "," + this.hero.y + "\n";
+            this.feedback+="You are at " + this.hero.x + "," + this.hero.y;
             this.board.space[this.hero.x][this.hero.y] = "H";
-            this.highlight(this.hero.x, this.hero.y, "red");
             if (!this.checkTouch()) {
-                this.checkAdjacent();
+                if ( this.hero.isAdjacent(this.bats) ) this.feedback+=this.bats.adjacentMessage;
+                if ( this.hero.isAdjacent(this.pit) ) this.feedback+=this.pit.adjacentMessage;
+                if ( this.hero.isAdjacent(this.wumpus) ) this.feedback+=this.wumpus.adjacentMessage;
             }
         },
     },
