@@ -90,8 +90,12 @@ export default Vue.extend({
         this.init();
     },
     mounted() {
-        // this.bus.$on('say', this.say),
-        // this.bus.msg = this.msg
+        this.bus.$on('move', this.move);
+        this.bus.$on('shoot', this.shoot);
+        this.bus.$on('message', () => { return this.message});
+        this.bus.sensors = this.sensors;
+        this.bus.position = this.position;
+        this.bus.arrowsLeft = this.arrowsLeft;
     },
     props: ['bus'],
     methods: {
@@ -214,6 +218,7 @@ export default Vue.extend({
                 if ( this.hero.isAdjacent(this.pit) ) this.sensors+=this.pit.adjacentMessage;
                 if ( this.hero.isAdjacent(this.wumpus) ) this.sensors+=this.wumpus.adjacentMessage;
             }
+            this.$emit('updateData', this.arrowsLeft, this.position, this.sensors, this.message)
         },
     },
 });
