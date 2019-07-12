@@ -5,7 +5,6 @@ html {
 
 body {
 	font-family:Arial, Helvetica, sans-serif;
-	font-size:small;
 }
 
 #board td {
@@ -102,7 +101,9 @@ textarea, textarea:focus, button:focus {
             </b-col>
         </b-row>
         <b-row v-if="!controls">
-            <b-button block variant="primary" v-on:click="reload()">Play Again</b-button>
+            <b-col cols="12">
+                <b-button block variant="primary" v-on:click="reload()">Play Again</b-button>
+            </b-col>
         </b-row>
     </b-container>
 </template>
