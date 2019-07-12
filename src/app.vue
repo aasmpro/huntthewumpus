@@ -18,8 +18,7 @@ body {
             {{gameBoard()|html}}
         </table>
         <button v-on:click="show=!show">
-            <span v-if="!show">Show</span>
-            <span v-if="show">Hide</span>
+            {{ show ? 'Hide' : 'Show' }}
         </button>
         <p>Arrows: {{arrowsLeft}}</p>
         <p>Position: {{position}}</p>
@@ -56,12 +55,12 @@ body {
                     </tr>
                 </table>
             </form>
+            <textarea v-model="code"></textarea>
+            <button v-on:click="runCode()">Run</button>
         </div>
         <div v-if="!controls">
             <button v-on:click="reload()">Play Again</button>
         </div>
-        <textarea v-model="code"></textarea>
-        <button v-on:click="runCode()">Run</button>
     </div>
 </template>
 
