@@ -85,8 +85,11 @@ class GameBoard {
 
     constructor(x: number, y: number){
         this.space = new Array(x);
-        for ( var i = 0; i < y; i++ ) {
+        for(var i = 0; i < y; i++) {
             this.space[i] = new Array(y);
+            for(var j=0; j<x; j++){
+                this.space[i][j] = "";
+            }
         }
     }
 
@@ -94,19 +97,19 @@ class GameBoard {
         return { "x":Math.floor(Math.random()*this.space.length), "y":Math.floor(Math.random()*this.space[0].length) };
     }
 
-    getRandomSpace() {
+    getRandomSpace(value: string) {
         var point = this.getRandomPoint();
-        this.space[point.x][point.y] = "occupied";
+        this.space[point.x][point.y] = value;
         return point;
     }
 
-    getRandomEmptySpace(): any {
+    getRandomEmptySpace(value: string): any {
         var point = this.getRandomPoint();
-        if ( this.space[point.x][point.y] == undefined ) {
-            this.space[point.x][point.y] = "occupied";
+        if ( this.space[point.x][point.y] === "" ) {
+            this.space[point.x][point.y] = value;
             return { "x":point.x, "y":point.y };
         } else {
-            return this.getRandomEmptySpace();
+            return this.getRandomEmptySpace(value);
         }
     }
 }

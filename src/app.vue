@@ -1,47 +1,77 @@
 <style>
+body {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:small;
+}
+
+#board, #board1 {
+	background-color:#999;
+}
+
+#board td, #board1 td {
+    text-align: center;
+	background-color:#ccc;
+	height:50px;
+	width:50px;
+}
+
+.red {
+    backgroundColor: red !import;
+}
+
+.pink {
+    backgroundColor: pink !import;
+}
 </style>
 
 <template>
     <div>
-        <span>{{arrowsLeft}}</span>
+        <table id="board1" v-html="gameBoard()">
+            {{gameBoard()|html}}
+        </table>
         <table id="board" :key="render">
-            <tr v-for="i in width" :id="i-1">
+            <tr v-for="i in width">
                 <td v-for="j in height"></td>
             </tr>
         </table>
+        <button v-on:click="help=!help">help</button>
+        <p>Arrows Left : {{arrowsLeft}}</p>
         <span>{{feedback}}</span>
-        <form id="movementControls" onsubmit="return false;">
-            <p>Move</p>
-            <table>
-                <tr>
-                    <td rowspan="3"><button v-on:click="move('left')">&lt;</button></td>
-                    <td><button v-on:click="move('up')">^</button></td>
-                    <td rowspan="3"><button v-on:click="move('right')">&gt;</button></td>
-                </tr>
-                <tr>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><button v-on:click="move('down')">v</button></td>
-                </tr>
-            </table>
-        </form>
-        <form id="arrowControls" onsubmit="return false;">
-            <p>Shoot</p>
-            <table>
-                <tr>
-                    <td rowspan="3"><button v-on:click="shoot('left')">&lt;</button></td>
-                    <td><button v-on:click="shoot('up')">^</button></td>
-                    <td rowspan="3"><button v-on:click="shoot('right')">&gt;</button></td>
-                </tr>
-                <tr>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><button v-on:click="shoot('down')">v</button></td>
-                </tr>
-            </table>
-        </form>
+        <div v-if="controls">
+            <form onsubmit="return false;">
+                <table>
+                    <tr>
+                        <td rowspan="3"><button v-on:click="move('left')">&lt;</button></td>
+                        <td><button v-on:click="move('up')">^</button></td>
+                        <td rowspan="3"><button v-on:click="move('right')">&gt;</button></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center">Move</td>
+                    </tr>
+                    <tr>
+                        <td><button v-on:click="move('down')">v</button></td>
+                    </tr>
+                </table>
+            </form>
+            <form onsubmit="return false;">
+                <table>
+                    <tr>
+                        <td rowspan="3"><button v-on:click="shoot('left')">&lt;</button></td>
+                        <td><button v-on:click="shoot('up')">^</button></td>
+                        <td rowspan="3"><button v-on:click="shoot('right')">&gt;</button></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center">Shoot</td>
+                    </tr>
+                    <tr>
+                        <td><button v-on:click="shoot('down')">v</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div v-if="!controls">
+            <button v-on:click="reload()">Play Again</button>
+        </div>
     </div>
 </template>
 
@@ -52,6 +82,8 @@ import { GamePiece, GameBoard, Hero, Wumpus, Pit, Bats, Arrow } from "./game"
 export default Vue.extend({
     data(){
         return {
+            controls: true as boolean,
+            help: true as boolean,
             render: 0 as number,
             width: 5 as number,
             height: 5 as number,
@@ -75,6 +107,28 @@ export default Vue.extend({
     },
     props: ['bus'],
     methods: {
+        gameBoard: function () {
+            var table: string="";
+            for(var i=0; i<this.width; i++){
+                table += "<tr>";
+                for(var j=0; j<this.height; j++){
+                        if(this.board.space[j][i].includes('H')){
+                            table += "<td style=\"background-color: red;\">";
+                        } else if(this.board.space[j][i].includes('X')){
+                            table += "<td style=\"background-color: pink;\">";
+                        } else {
+                            table += "<td>"
+                        }
+                        if(this.help){
+                            table += this.board.space[j][i];
+                        }
+                    table += "</td>"
+                }
+                table += "</tr>";
+            }
+            return table
+        },
+
         forceRender() {
             this.render += 1;
         },
@@ -85,40 +139,28 @@ export default Vue.extend({
             this.arrowsLeft = 5;
             this.feedback = "";
             this.board = new GameBoard(this.width, this.height);
-            this.hero = new Hero(this.board.getRandomEmptySpace());
-            this.pit = new Pit(this.board.getRandomEmptySpace());
-            this.bats = new Bats(this.board.getRandomEmptySpace());
-            this.wumpus = new Wumpus(this.board.getRandomEmptySpace());
-            this.extraArrow = new Arrow(this.board.getRandomEmptySpace());
-            this.board.space[this.hero.x][this.hero.y] = this.hero.name;
+            this.hero = new Hero(this.board.getRandomEmptySpace("H"));
+            this.pit = new Pit(this.board.getRandomEmptySpace("P"));
+            this.bats = new Bats(this.board.getRandomEmptySpace("B"));
+            this.wumpus = new Wumpus(this.board.getRandomEmptySpace("W"));
+            this.extraArrow = new Arrow(this.board.getRandomEmptySpace("A"));
         },
 
-        end() {
-            var dom: any = document.getElementById("movementControls");
-            dom.style.display = "none";
-            dom = document.getElementById("arrowControls");
-            dom.style.display = "none";
+        reload() {
+            this.init();
+            this.forceRender();
+            this.move("standstill");
+            this.controls = true;
         },
 
         win() {
-            if (confirm("You WIN!!! New game?")) {
-                this.init();
-                this.forceRender();
-                this.move("standstill");
-            } else {
-                this.end();	
-            }
+            this.feedback = "Win! You Hunted The Wumpus :)";
+            this.controls = false;
         },
 
         lose() {
-            this.feedback+="You are dead!";
-            if (confirm("You lose! New game?")) {
-                this.init();
-                this.forceRender();
-                this.move("standstill");
-            } else {
-                this.end();
-            }
+            this.feedback = "Lose! The Wumpus Hunted You :(";
+            this.controls = false;
         },
 
         checkTouch() {
@@ -126,7 +168,7 @@ export default Vue.extend({
             if ( this.hero.isTouching(this.bats) ) {
                 isTouchingAnythingDangerous = true;
                 this.highlight(this.hero.x, this.hero.y);
-                var point = this.board.getRandomSpace();
+                var point = this.board.getRandomEmptySpace();
                 this.hero.x = point.x;
                 this.hero.y = point.y;
                 
@@ -170,11 +212,10 @@ export default Vue.extend({
                 var arrow = new Arrow({'x': this.hero.x, 'y': this.hero.y});
                 arrow.move(dir, this.board);
                 if ( arrow.isTouching(this.wumpus) ) {
-                    this.feedback+="You WIN!!!";
                     this.win();
                 } else {
                     this.move("standstill");
-                    this.feedback+="Drats! Missed!";
+                    this.feedback+="Arrow Missed!";
                 }
             } else {
                 this.feedback+="Out of arrows!";	
@@ -185,7 +226,8 @@ export default Vue.extend({
             this.highlight(this.hero.x, this.hero.y);
             this.feedback = "";
             this.hero.move(dir, this.board);
-            this.feedback+="You are at " + this.hero.x + "," + this.hero.y+"\n";
+            this.feedback+="You are at " + this.hero.x + "," + this.hero.y + "\n";
+            this.board.space[this.hero.x][this.hero.y] = "H";
             this.highlight(this.hero.x, this.hero.y, "red");
             if (!this.checkTouch()) {
                 this.checkAdjacent();
