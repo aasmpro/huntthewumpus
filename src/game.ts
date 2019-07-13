@@ -38,10 +38,10 @@ class GamePiece {
                 if ( this.y > 0 ) this.y--;
                 break;
             case "right":
-                if ( this.x < boardX ) this.x++;
+                if ( this.x < boardX - 1 ) this.x++;
                 break;
             case "down":
-                if ( this.y < boardY ) this.y++;
+                if ( this.y < boardY - 1 ) this.y++;
                 break;
             default:
                 break;
