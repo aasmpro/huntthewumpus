@@ -18,7 +18,7 @@ export let obj = new Vue({
     el:"#app",
     data:{
         bus: new Vue(),
-        arrowsLeft: 0 as number,
+        arrows: 0 as number,
         sensors: "" as string,
         position: "" as string,
         message: "" as string
@@ -41,7 +41,7 @@ export let obj = new Vue({
         shootRight(){this.bus.$emit('shoot', "right")},
 
         updateData(arrowsLeft: number, position: string, sensors: string, message: string){
-            this.arrowsLeft = arrowsLeft;
+            this.arrows = arrowsLeft;
             this.position = position;
             this.sensors = sensors;
             this.message = message;

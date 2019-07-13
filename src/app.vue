@@ -12,16 +12,17 @@ body {
 	background-color:#ccc;
 	height:50px;
 	width:50px;
+    border: 1px solid #fff;
 }
 
 #play-buttons {
-    padding-top: 10px;
+    padding-top: 20px;
 }
 
 #play-buttons button {
     width: 40px;
     height: 40px;
-    margin: 3px 21px;
+    margin: 3px 22px;
 }
 
 textarea, textarea:focus, button:focus {
@@ -65,7 +66,7 @@ textarea, textarea:focus, button:focus {
                                 <b-row align-h="center">
                                     <b-button variant="primary" v-on:click="move('up')"><font-awesome-icon icon="chevron-up" /></b-button>
                                 </b-row>
-                                <b-row align-h="center">
+                                <b-row align-h="center" align-v="center">
                                     <b-button variant="primary" v-on:click="move('left')"><font-awesome-icon icon="chevron-up" rotation="270" /></b-button>
                                     <b-button variant="primary" v-on:click="move('right')"><font-awesome-icon icon="chevron-up" rotation="90" /></b-button>
                                 </b-row>
@@ -77,7 +78,7 @@ textarea, textarea:focus, button:focus {
                                 <b-row align-h="center">
                                     <b-button variant="danger" v-on:click="shoot('up')"><font-awesome-icon icon="long-arrow-alt-up" /></b-button>
                                 </b-row>
-                                <b-row align-h="center">
+                                <b-row align-h="center" align-v="center">
                                     <b-button variant="danger" v-on:click="shoot('left')"><font-awesome-icon icon="long-arrow-alt-up" rotation="270" /></b-button>
                                     <b-button variant="danger" v-on:click="shoot('right')"><font-awesome-icon icon="long-arrow-alt-up" rotation="90" /></b-button>
                                 </b-row>
@@ -86,16 +87,46 @@ textarea, textarea:focus, button:focus {
                                 </b-row>
                             </b-col>
                         </b-row>
+                        <b-row class="mt-3">
+                            <b-col cols="12">
+                                <p>You have 5 arrows to Hunt The Wumpus! an arrow can only hit the next square. there is an extra arrow left
+                                on the map too. if you fall in a Pit or be eaten by Wumpus, you Lose. Bats will carry you to a random place 
+                                that can be Wumpus or Pit too.<br>
+                                You can sense Wumpus, Pit and Bats when you are in a square around them.<br>
+                                Use <span class="text-primary">Blue</span> buttons for <span class="text-primary">moving</span> Hero, 
+                                and <span class="text-danger">Red</span> buttons for <span class="text-danger">shooting</span> Arrows.<br>
+                                <span class="text-danger">Cheat!</span> You can see items position by clicking map too. <code>H = Hero</code>, <code>W = Wumpus</code>,
+                                <code>B = Bats</code>, <code>P = Pit</code> and <code>A = Extra Arrow</code></p>
+                            </b-col>
+                        </b-row>
                     </b-tab>
                     <b-tab title="Code">
                         <b-form-textarea
                             id="textarea-no-resize"
                             placeholder="Enter your code here"
-                            rows="5"
+                            rows="10"
                             no-resize
                             v-model="code"
                         ></b-form-textarea>
                         <b-button block variant="primary" v-on:click="runCode()">Run</b-button>
+                        <div class="mt-3">
+                            <p>You can write a JS code to play game too! For moving Hero:<br>
+                            <code>game.obj.moveUp()</code><br>
+                            <code>game.obj.moveRight()</code><br>
+                            <code>game.obj.moveDown()</code><br>
+                            <code>game.obj.moveLeft()</code><br>
+                            For shooting Arrow:<br>
+                            <code>game.obj.shootUp()</code><br>
+                            <code>game.obj.shootRight()</code><br>
+                            <code>game.obj.shootDown()</code><br>
+                            <code>game.obj.shootLeft()</code><br>
+                            And for getting Game Data:<br>
+                            <code>game.obj.arrows</code><br>
+                            <code>game.obj.sensors</code><br>
+                            <code>game.obj.position</code><br>
+                            <code>game.obj.message</code><br>
+                            Also these functions and properties are accessible in browser console too.</p>
+                        </div>
                     </b-tab>
                 </b-tabs>
             </b-col>
@@ -247,7 +278,7 @@ export default Vue.extend({
                     this.message = "Lose! No more arrows for hunting Wumpus!";
                     this.lose();
                 } else {
-                    this.message = "Out of arrows! But still there is one on board!";
+                    this.message = "Out of arrows! But still there is one on map!";
                 }
             }
         },
